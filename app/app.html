@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Electron Boilerplate Vue.js</title>
+
+    <link href="./stylesheets/material.min.css" rel="stylesheet" type="text/css">
+    <link href="./font/material/flaticon.css" rel="stylesheet" type="text/css">
+    <link href="./stylesheets/main.css" rel="stylesheet" type="text/css">
+
+    <script src="vendor/electron_boilerplate/env_config.js"></script>
+    <script src="vendor/electron_boilerplate/context_menu.js"></script>
+    <script src="vendor/electron_boilerplate/external_links.js"></script>
+    <script src="vendor/material.min.js"></script>
+</head>
+<body>
+    <div id="app" class="mdl-layout mdl-js-layout">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+              <span class="mdl-layout-title">Leggimi</span>
+              <div class="mdl-layout-spacer"></div>
+              <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" v-link="{path: '/welcome'}">Welcome</a>
+                <a class="mdl-navigation__link" v-link="{path: '/games'}">Games</a>
+                <a class="mdl-navigation__link" v-link="{path: '/reader'}">Reader</a>
+
+              </nav>
+        </div>
+      </header>
+      
+      <div class="mdl-layout__drawer">
+        <span class="mdl-layout-title">Title</span>
+        <nav class="mdl-navigation">
+          <a class="mdl-navigation__link" v-link="{path: '/welcome'}">Welcome</a>
+          <a class="mdl-navigation__link" v-link="{path: '/games'}">Games</a>
+          <a class="mdl-navigation__link" v-link="{path: '/reader'}">Reader</a>
+        </nav>
+      </div>
+
+      <main class="mdl-layout__content">
+        <router-view class="" >
+          
+        </router-view>
+      </main>
+        
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
