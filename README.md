@@ -6,8 +6,8 @@ Un gioco-lettura per aiutare i bambini con disturbi specifici di apprendimento
 The only development dependency of this project is [Node.js](https://nodejs.org). So just make sure you have it installed.
 Then type few commands known to every Node developer...
 ```
-git clone https://github.com/bradstewart/electron-boilerplate-vue.git
-cd electron-boilerplate-vue
+git clone https://github.com/farzeni/leggimi.git
+cd leggimi
 npm install
 npm start
 ```
