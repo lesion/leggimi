@@ -2,17 +2,18 @@
 // are required the same way as always.
 // const app = require('remote').require('app')
 // const jetpack = require('fs-jetpack').cwd(app.getAppPath())
-const Vue = require('vue')
-const VueRouter = require('vue-router')
-const vmdl = require('vue-mdl')
-const games = require('./components/Games.vue')
-const welcome = require('./components/Welcome.vue')
-const reader = require('./components/Reader.vue')
-const writer = require('./components/Writer.vue')
 
-vmdl.default.registerAll(Vue)
-
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import VueMdl from 'vue-mdl'
+import games from './components/Games.vue'
+import welcome from './components/Welcome.vue'
+import reader from './components/Reader.vue'
+import writer from './components/Writer.vue'
 Vue.use(VueRouter)
+Vue.use(VueMdl)
+
+require('material-design-lite-bundled')
 
 var router = new VueRouter()
 router.map({

@@ -50,7 +50,7 @@ export default {
 
   route: {
     activate () {
-      setTimeout(() => {window.componentHandler.upgradeDom()}, 500)
+      // setTimeout(() => { window.componentHandler.upgradeDom() }, 500)
     }
   },
 

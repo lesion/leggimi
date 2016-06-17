@@ -36,11 +36,11 @@
 
 <script>
 
-const jetpack = require('fs-jetpack')
-const app = require('electron').remote.require('app')
-var word_dir = app.getAppPath() + '/../assets/parole/'
+// const jetpack = require('fs-jetpack')
+// const app = require('electron').remote.require('app')
+// var word_dir = app.getAppPath() + '/../assets/parole/'
 
-console.log(word_dir)
+// console.log(word_dir)
 
 export default {
   data () {
@@ -52,7 +52,7 @@ export default {
       message: '',
       player_word: '',
       words: [],
-      word_files: jetpack.list(word_dir)
+      word_files: [] // jetpack.list(word_dir)
     }
   },
 
@@ -64,7 +64,7 @@ export default {
 
   methods: {
     read_words (filename) {
-      var txt = JSON.parse(JSON.stringify(jetpack.read(word_dir + filename)))
+      var txt = 'pro prova' //JSON.parse(JSON.stringify(jetpack.read(word_dir + filename)))
       this.words = txt.split('\n')
     },
 

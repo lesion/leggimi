@@ -40,9 +40,9 @@
 
 
 <script>
-const jetpack = require('fs-jetpack')
-const app = require('electron').remote.require('app')
-var story_dir = app.getAppPath() + '/../assets/storie/'
+// const jetpack = require('fs-jetpack')
+// const app = require('electron').remote.require('app')
+// var story_dir = app.getAppPath() + '/../assets/storie/'
 
 export default {
   data () {
@@ -55,7 +55,7 @@ export default {
       playing: false,
       paused: false,
       current: -1,
-      stories: jetpack.list(story_dir)
+      stories: [] //jetpack.list(story_dir)
     }
   },
 
@@ -66,8 +66,8 @@ export default {
 
   route: {
     activate () {
-      var path = app.getAppPath()
-      console.log(path)
+      // var path = app.getAppPath()
+      // console.log(path)
     },
 
     deactivate () {
@@ -87,7 +87,7 @@ export default {
     },
 
     select_story (filename) {
-      this.story_text = jetpack.read(story_dir + filename, 'buf')
+      this.story_text = 'pro prova prova prova' // jetpack.read(story_dir + filename, 'buf')
       this.story = filename
       this.transform_text(this.story_text)
     },
