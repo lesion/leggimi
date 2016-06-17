@@ -41,7 +41,7 @@
 
 <script>
 const jetpack = require('fs-jetpack')
-const app = require('remote').require('app')
+const app = require('electron').remote.require('app')
 var story_dir = app.getAppPath() + '/../assets/storie/'
 
 export default {

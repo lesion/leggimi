@@ -37,7 +37,7 @@
 <script>
 
 const jetpack = require('fs-jetpack')
-const app = require('remote').require('app')
+const app = require('electron').remote.require('app')
 var word_dir = app.getAppPath() + '/../assets/parole/'
 
 console.log(word_dir)
