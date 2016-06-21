@@ -1,81 +1,103 @@
-<template>
-  <div>
-    <div v-if="story != ''" class='main-story'>
-      <a class='back-button' @click="back_to_stories"><i class="flaticon-go-back-left-arrow"></i></a>
-      <div class='story-box mdl-cell mdl-cell--8-col mdl-cell--2-offset'>       
-        <template v-for="word in words">
-          <span v-bind:class="word.class">
-            {{{word.text}}}
+<template lang='jade'>
+  div.reader
+    // e' stata selezionata una storia (sarebbe meglio fare due componenti invece di 'sto troiaio)
+    div.reader(v-if='story_id!=="-1"')
 
-          </span>
-        </template>
-      </div>
-      <div class='controls mdl-grid'>
-        <div class='mdl-cell mdl-cell--4-col mdl-cell--4-offset text-centered'>
-          <a @click='rewind'><i class="flaticon-rewind-button"></i></a>
-          <a  v-if='!playing' @click='start'><i class="flaticon-play-arrow"></i></a>
-          <a v-if='playing' @click='pause'>
-            <i v-if='!paused' class="flaticon-pause-button"></i>
-            <i v-if='paused' class="flaticon-play-arrow"></i>
-          </a>
-          <a v-if='playing' @click='stop'><i class="flaticon-stop-button"></i></a>
-          <a @click="forward"><i class="flaticon-fast-forward-button"></i></a>
-        </div>
-        <div class='mdl-cell mdl-cell--4-col text-righted'>
-          Velocita': <input type="text" v-model="delay" placeholder="edit me">
-        </div>
-      </div>
-    </div>
-    <div v-else>
-      <ul class="story-list-item mdl-list">
-        <li class="mdl-list__item" v-for="story in stories">
-          <span class="mdl-list__item-primary-content">
-            <a @click="select_story(story)">{{story}}</a>
-          </span>
-        </li>
-      </ul>
-    </div>
-  </div>
+      ui-toolbar.header(flat,nav-icon='keyboard_arrow_left',@nav-icon-clicked='back_to_stories')
+        div {{stories[story_id]}}
+      ui-progress-linear(:show='true',type='determinate',color='primary',:value='current/n*100')
+      .footer
+        .controls
+          ui-icon-button(type='flat',icon='fast_rewind',@click='rewind')
+          ui-icon-button(type='flat',:icon='playing?"pause":"play_arrow"',@click='playing?pause():start()')
+          ui-icon-button(type='flat',icon='fast_forward',@click='forward')
+        ui-slider(:value.sync='opacity',:label='`Trasparenza ${opacity}%`')
+        ui-slider(:value.sync='speed',:label='`Velocita (${speed}PPM)`')
+      
+      .storia(@touchmove='muovo',@touchend='touchend',v-el:diocane)
+        span(v-for='word in words',
+          track-by='$index',
+          :style="{opacity: opacity/100}",
+          :class="{active: current==$index}",
+          :vindex="$index") {{{word}}}
+
+    // lista di libri
+    div(v-else)
+      ui-menu(:options='genStories',open-on='always',@option-selected='select_story')
+
 </template>
-
-
 <script>
-// const jetpack = require('fs-jetpack')
-// const app = require('electron').remote.require('app')
-// var story_dir = app.getAppPath() + '/../assets/storie/'
 
+import leggimi from '../leggimi'
 export default {
   data () {
     return {
-      story: '',
-      story_text: '',
-      story_text_html: '',
       words: [],
-      delay: 100,
       playing: false,
-      paused: false,
       current: -1,
-      stories: [] //jetpack.list(story_dir)
+      stories: leggimi.stories,
+      opacity: 15,
+      speed: 50,
+      n: 0
     }
   },
-
+  computed: {
+    delay () {
+      return 1500 / this.speed 
+    },
+    genOpacity () {
+      return this.opacity / 100
+    },
+    genStories () {
+      return this.stories.map( (s, i) => ({ id: i, text: s}))
+    },
+    story_id () { return this.$route.params.story_id }
+  },
   created () {
-    console.log('reader created')
     window.addEventListener('keyup', this.dispatch_keyup)
   },
-
+  destroyed () {
+    window.removeEventListener('keyup', this.dispatch_keyup)
+  },
   route: {
-    activate () {
-      // var path = app.getAppPath()
-      // console.log(path)
-    },
+    data () {
+      if(this.story_id === '-1') return
 
+      this.current = -1
+
+      leggimi.getStory(this.story_id)
+        .then( ret => {
+          this.words = ret.replace(/\n/g, ' ' ).replace(/\r/g, '').split(' ').map(w => w.trim() ).filter( w => w !== '')
+          this.n = this.words.length
+        })
+    },
     deactivate () {
-      this.stop()
+      this.pause()
+      this.current = -1
     }
   },
 
   methods: {
+    muovo (e) {
+      let touch = e.touches.item(0)
+      let word = document.elementFromPoint(touch.clientX, touch.clientY)
+      if(word && word.attributes && word.attributes.vindex){
+        this.current = parseInt(word.attributes.vindex.value)
+      }
+      e.preventDefault()
+    },
+    touchend (e) {
+      let touch = e.changedTouches.item(0)
+      if (touch.clientX < document.body.clientWidth - 100) return
+      let tmpTop = parseInt(this.$els.diocane.style.marginTop) || 0
+      this.$els.diocane.style.marginTop = (tmpTop - 55) + 'px'
+    },
+    back_to_stories () {
+      window.history.back()
+    },
+    select_story (story) {
+      this.$router.go(`/reader/${story.id}`)
+    },
     dispatch_keyup (ev) {
       if (ev.keyCode === 37) {
         this.rewind()
@@ -86,139 +108,101 @@ export default {
       }
     },
 
-    select_story (filename) {
-      this.story_text = 'pro prova prova prova' // jetpack.read(story_dir + filename, 'buf')
-      this.story = filename
-      this.transform_text(this.story_text)
-    },
-
-    transform_text (txt) {
-      this.words = []
-      txt = JSON.parse(JSON.stringify(txt))
-      var word = ''
-      var br_counter = 0
-      txt.data.map((char, index) => {
-        if (char !== 10) {
-          if (char !== 13 && char !== 32) {
-            if (br_counter >= 0) {
-              br_counter = 0
-            }
-            word += String.fromCharCode(char)
-          } else {
-            if (word.length > 0) {
-              this.words.push({text: word, index: index, class: 'normal'})
-            }
-            if (char === 13 && br_counter >= 0) {
-              br_counter++
-
-              if (br_counter === 1) {
-                this.words.push({text: '<br>', index: index})
-              }
-
-              if (br_counter === 2) {
-                br_counter = -1
-              }
-            }
-            word = ''
-          }
-        }
-      })
-    },
-
-    update_words () {
-      if (!this.paused) {
-        this.forward()
-      }
-
-      if (this.current === this.words.length || !this.playing) {
-        this.stop()
-      } else {
-        window.setTimeout(() => { this.update_words() }, this.delay * 10)
-      }
-    },
-
     pause () {
-      this.paused = !this.paused
+      this.playing = !this.playing
     },
 
     forward () {
-      console.log(this.current)
-      if (!this.playing && !this.paused) {
-        this.words.map(word => { word.class = 'light' })
+      if( this.current >= this.n ){
+        this.pause()
       }
 
-      if (this.current >= 0) {
-        this.words[this.current].class = 'light'
-      }
+      if( this.playing )
+        window.setTimeout(this.forward, this.delay * 10)
 
-      if (this.current < this.words.length) {
-        this.current++
-        this.words[this.current].class = 'normal'
-      }
+      this.current++
+      this.$nextTick( () => {
+        let tmpTop = parseInt(this.$els.diocane.style.marginTop) || 0
+        let word = this.$els.diocane.querySelector('.active')
+        if(Math.abs(word.offsetTop - 70) < 10) return
+        this.$els.diocane.style.marginTop = (tmpTop - word.offsetTop + 80) + 'px'
+      })
     },
 
     rewind () {
       if (this.current > 0) {
-        if (!this.playing) {
-          this.words.map(word => { word.class = 'light' })
-        }
-        this.words[this.current].class = 'light'
         this.current--
-        this.words[this.current].class = 'normal'
       }
+      this.$nextTick( () => {
+        let tmpTop = parseInt(this.$els.diocane.style.marginTop) || 0
+        let word = this.$els.diocane.querySelector('.active')
+        this.$els.diocane.style.marginTop = (tmpTop - word.offsetTop + 80) + 'px'
+      })
     },
 
     start () {
-      console.log('start')
-      this.words.map(word => { word.class = 'light'})
       this.playing = true
-      window.setTimeout(() => { this.update_words() }, this.delay * 10)
-    },
-
-    stop () {
-      console.log('stop')
-      this.words.map(word => { word.class = 'normal'})
-      this.playing = false
-      this.paused = false
-      this.current = -1
-    },
-
-    back_to_stories () {
-      this.story = ''
-      this.story_text = ''
+      window.setTimeout(this.forward, this.delay * 10)
     }
   }
 }
 </script>
+<style lang='stylus'>
   
+  .ui-menu
+    max-width: 100%
 
-<style>
-  .story-box span {
-    font-size:3em;
-    line-height: 1.5em;
-    transition:opacity 200ms;
-  }
+    .ui-menu-item
+      border-bottom: 1px solid #eee
+      font-size: 20px
+      height: 50px
+      color: #888
 
-  .normal {
-    opacity:1;
-  }
+  .reader 
+    height: 100%
+
+  .storia
+    margin-top: 0px
+    font-size: 4.5vw
+    line-height: 25px
+    transition: margin .2s ease
+    padding-top: 25px
+
+
+    span
+      transition: opacity .5s
+      padding-bottom: 30px
+      margin-left: 10px
+      display: inline-block
+
+      &.active
+        opacity: 1 !important
+
+    .light
+      opacity: 1
+
+  .header
+    z-index: 2
+    background-color: white
   
-  .light {
-    opacity:0.1;
-  }
+  .footer
+    z-index: 2
+    background-color: white
+    bottom: 0px
+    display: flex
+    position: absolute
+    width: 100%
+    border-top: 1px solid #eee
+    padding-top: 10px
+    box-shadow: 0px 0px 5px #888888
 
-  .main-story {
-    padding:50px;
-    margin-bottom:150px;
-  }
+    .controls
+      width: 30%
+      margin-right: 2%
+      text-align: center
 
-  .controls {
-    position:fixed;
-    bottom:40px;
-    background:rgba(0,0,0,0.7);
-    width:80%;
-    margin:0px 10%;
-    padding:20px;
-    border-radius: 50px;
-  }
+    .ui-slider
+      margin-right: 2%
+      width: 30%
+
 </style>
