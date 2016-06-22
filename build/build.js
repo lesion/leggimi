@@ -27,9 +27,9 @@ webpack(webpackConfig, function (err, stats) {
   if (err) throw err
   process.stdout.write(stats.toString({
     colors: true,
-    modules: false,
-    children: false,
-    chunks: false,
-    chunkModules: false
+    modules: true,
+    children: true,
+    chunks: true,
+    chunkModules: true
   }) + '\n')
 })

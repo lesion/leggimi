@@ -6,7 +6,8 @@ var projectRoot = path.resolve(__dirname, '../')
 module.exports = {
   entry: {
     fetch: 'whatwg-fetch',
-    app: './app/app.js'
+    app: './app/app.js',
+    icons: [ 'webpack-material-design-icons']
   },
   output: {
     path: config.build.assetsRoot,
@@ -70,10 +71,10 @@ module.exports = {
       },
       {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        loader: 'url',
+        loader: 'file',
         query: {
           limit: 2000,
-          name: utils.assetsPath('css/[name].[hash:7].[ext]')
+          name: utils.assetsPath('[name].[hash:7].[ext]')
         }
       }
     ]
