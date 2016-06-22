@@ -3,12 +3,10 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Keen from 'keen-ui'
 
-import 'normalize.css/normalize.css'
 import 'keen-ui/dist/min/keen-ui.min.css'
-import 'material-design-icons-iconfont/dist/material-design-icons.scss'
-
 // TOFIX: qui devo importare solo la famiglia che interessa non tutto il polpettone !
-import 'roboto-fontface/css/roboto/roboto-fontface.css'
+// import 'roboto-fontface/css/roboto/less/roboto-fontface-light.less'
+// 
 import './stylesheets/main.sass'
 
 Vue.use(VueRouter)
