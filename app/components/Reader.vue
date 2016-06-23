@@ -30,6 +30,7 @@
 
 import leggimi from '../leggimi'
 export default {
+  name: 'Reader',
   data () {
     return {
       words: [],

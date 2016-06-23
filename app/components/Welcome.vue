@@ -38,6 +38,7 @@
 import store from '../store'
 
 export default {
+  name: 'Welcome',
   data () {
     return {
       name: store.name

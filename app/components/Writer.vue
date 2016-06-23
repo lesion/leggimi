@@ -43,6 +43,7 @@
 // console.log(word_dir)
 
 export default {
+  name: 'Writer',
   data () {
     return {
       score: 0,

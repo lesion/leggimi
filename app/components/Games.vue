@@ -35,6 +35,7 @@
 import store from '../store'
 
 export default {
+  name: 'Games',
   data () {
     return {
       name: store.name
