@@ -12,10 +12,11 @@ import './stylesheets/main.sass'
 Vue.use(VueRouter)
 Vue.use(Keen)
 
-import games from './components/Games.vue'
-import welcome from './components/Welcome.vue'
-import reader from './components/Reader.vue'
-import writer from './components/Writer.vue'
+import games from './components/Games'
+import welcome from './components/Welcome'
+import reader from './components/Reader'
+import writer from './components/Writer'
+import stories from './components/Stories'
 
 var router = new VueRouter()
 router.map({
@@ -30,12 +31,13 @@ router.map({
   },
   '/welcome': {
     component: welcome
+  },
+  '/stories': {
+    component: stories
   }
 })
-
-router.alias({ '/reader': '/reader/-1' })
 
 var App = Vue.extend({})
 
 router.start(App, '#app')
-router.go('/reader')
+router.go('/stories')
