@@ -5,9 +5,8 @@ var projectRoot = path.resolve(__dirname, '../')
 
 module.exports = {
   entry: {
-    fetch: 'whatwg-fetch',
     app: './app/app.js',
-    icons: [ 'webpack-material-design-icons']
+    vendor: ['webpack-material-design-icons', 'whatwg-fetch']
   },
   output: {
     path: config.build.assetsRoot,

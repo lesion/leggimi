@@ -1,29 +1,23 @@
 <template lang='jade'>
-  div.reader
-    // e' stata selezionata una storia (sarebbe meglio fare due componenti invece di 'sto troiaio)
-    div.reader(v-if='story_id!=="-1"')
-
-      ui-toolbar.header(flat,nav-icon='keyboard_arrow_left',@nav-icon-clicked='back_to_stories')
-        div {{stories[story_id]}}
-      ui-progress-linear(:show='true',type='determinate',color='primary',:value='current/n*100')
-      .footer
-        .controls
-          ui-icon-button(type='flat',icon='fast_rewind',@click='rewind')
-          ui-icon-button(type='flat',:icon='playing?"pause":"play_arrow"',@click='playing?pause():start()')
-          ui-icon-button(type='flat',icon='fast_forward',@click='forward')
-        ui-slider(:value.sync='opacity',:label='`Trasparenza ${opacity}%`')
-        ui-slider(:value.sync='speed',:label='`Velocita (${speed}PPM)`')
-      
-      .storia(@touchmove='muovo',@touchend='touchend',v-el:diocane)
-        span(v-for='word in words',
-          track-by='$index',
-          :style="{opacity: opacity/100}",
-          :class="{active: current==$index}",
-          :vindex="$index") {{{word}}}
-
-    // lista di libri
-    div(v-else)
-      ui-menu(:options='genStories',open-on='always',@option-selected='select_story')
+// ogni componente in vue deve avere un solo padre
+div.reader
+  ui-toolbar.header(flat,nav-icon='keyboard_arrow_left',@nav-icon-clicked='back_to_stories')
+    div {{title}}
+  ui-progress-linear(:show='true',type='determinate',color='primary',:value='current/n*100')
+  .footer
+    .controls
+      ui-icon-button(type='flat',icon='fast_rewind',@click='rewind')
+      ui-icon-button(type='flat',:icon='playing?"pause":"play_arrow"',@click='playing?pause():start()')
+      ui-icon-button(type='flat',icon='fast_forward',@click='forward')
+    ui-slider(:value.sync='opacity',:label='`Trasparenza ${opacity}%`')
+    ui-slider(:value.sync='speed',:label='`Velocita (${speed}PPM)`')
+  
+  .storia(@touchmove='muovo',@touchend='touchend',v-el:diocane)
+    span(v-for='word in words',
+      track-by='$index',
+      :style="{opacity: opacity/100}",
+      :class="{active: current==$index}",
+      :vindex="$index") {{{word}}}
 
 </template>
 <script>
@@ -36,10 +30,10 @@ export default {
       words: [],
       playing: false,
       current: -1,
-      stories: leggimi.stories,
       opacity: 15,
       speed: 50,
-      n: 0
+      n: 0,
+      title: ''
     }
   },
   computed: {
@@ -48,11 +42,8 @@ export default {
     },
     genOpacity () {
       return this.opacity / 100
-    },
-    genStories () {
-      return this.stories.map( (s, i) => ({ id: i, text: s}))
-    },
-    story_id () { return this.$route.params.story_id }
+    }
+    // story_id () { return this.$route.params.story_id }
   },
   created () {
     window.addEventListener('keyup', this.dispatch_keyup)
@@ -61,12 +52,11 @@ export default {
     window.removeEventListener('keyup', this.dispatch_keyup)
   },
   route: {
-    data () {
-      if(this.story_id === '-1') return
-
-      this.current = -1
-
-      leggimi.getStory(this.story_id)
+    data (transition) {
+      let story_id = transition.to.params.story_id
+      this.current = 0
+      this.title = leggimi.stories[story_id]
+      return leggimi.getStory(story_id)
         .then( ret => {
           this.words = ret.replace(/\n/g, ' ' ).replace(/\r/g, '').split(' ').map(w => w.trim() ).filter( w => w !== '')
           this.n = this.words.length
@@ -74,7 +64,7 @@ export default {
     },
     deactivate () {
       this.pause()
-      this.current = -1
+      this.current = 0
     }
   },
 
@@ -95,9 +85,6 @@ export default {
     },
     back_to_stories () {
       window.history.back()
-    },
-    select_story (story) {
-      this.$router.go(`/reader/${story.id}`)
     },
     dispatch_keyup (ev) {
       if (ev.keyCode === 37) {
@@ -191,7 +178,7 @@ export default {
     background-color: white
     bottom: 0px
     display: flex
-    position: absolute
+    position: fixed
     width: 100%
     border-top: 1px solid #eee
     padding-top: 10px
